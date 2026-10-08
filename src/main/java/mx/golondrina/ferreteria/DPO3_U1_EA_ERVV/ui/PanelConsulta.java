@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 import mx.golondrina.ferreteria.DPO3_U1_EA_ERVV.model.Estado;
@@ -27,7 +28,8 @@ public class PanelConsulta extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int COL_ELIMINAR = 3;
+    private static final int COL_MODIFICAR = 3;
+    private static final int COL_ELIMINAR = 4;
 
     private final transient EstadoService service;
     private final transient Runnable alRegresar;
@@ -38,13 +40,13 @@ public class PanelConsulta extends JPanel {
     private final JLabel lblTotal = new JLabel();
 
     private final DefaultTableModel modeloTabla =
-            new DefaultTableModel(new Object[] {"Clave", "Nombre", "Capital", "Eliminar"}, 0) {
+            new DefaultTableModel(new Object[] {"Clave", "Nombre", "Capital", "Modificar", "Eliminar"}, 0) {
                 private static final long serialVersionUID = 1L;
 
-                /** Solo la columna de botones es "editable", para que reciba el clic. */
+                /** Solo las columnas de botones son "editables", para que reciban el clic. */
                 @Override
                 public boolean isCellEditable(int fila, int columna) {
-                    return columna == COL_ELIMINAR;
+                    return columna == COL_MODIFICAR || columna == COL_ELIMINAR;
                 }
             };
 
@@ -77,6 +79,7 @@ public class PanelConsulta extends JPanel {
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabla.getTableHeader().setReorderingAllowed(false);
         tabla.getColumnModel().getColumn(0).setMaxWidth(80);
+        new ColumnaBoton(tabla, COL_MODIFICAR, "Modificar", this::modificar);
         new ColumnaBoton(tabla, COL_ELIMINAR, "Eliminar", this::eliminar);
 
         JScrollPane scroll = new JScrollPane(tabla);
@@ -115,7 +118,7 @@ public class PanelConsulta extends JPanel {
         try {
             registros.addAll(service.listar());
             for (Estado estado : registros) {
-                modeloTabla.addRow(new Object[] {estado.clave(), estado.nombre(), estado.capital(), "Eliminar"});
+                modeloTabla.addRow(new Object[] {estado.clave(), estado.nombre(), estado.capital(), "Modificar", "Eliminar"});
             }
         } catch (IOException | IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(
@@ -125,6 +128,19 @@ public class PanelConsulta extends JPanel {
                     JOptionPane.WARNING_MESSAGE);
         }
         actualizarTotal("");
+    }
+
+    private void modificar(int fila) {
+        Estado original = registros.get(fila);
+        DialogoModificar dialogo = new DialogoModificar(SwingUtilities.getWindowAncestor(this), original, service);
+
+        dialogo.mostrar().ifPresent(modificado -> {
+            registros.set(fila, modificado);
+            modeloTabla.setValueAt(modificado.clave(), fila, 0);
+            modeloTabla.setValueAt(modificado.nombre(), fila, 1);
+            modeloTabla.setValueAt(modificado.capital(), fila, 2);
+            actualizarTotal("Se modificó " + modificado.nombre() + " (" + modificado.clave() + ").");
+        });
     }
 
     private void eliminar(int fila) {
@@ -141,7 +157,6 @@ public class PanelConsulta extends JPanel {
                 opciones,
                 opciones[1]); // Cancelar como opción predeterminada
 
-        // Cancelar, o cerrar la ventana con la X: el registro se conserva sin cambios
         if (respuesta != 0) {
             return;
         }

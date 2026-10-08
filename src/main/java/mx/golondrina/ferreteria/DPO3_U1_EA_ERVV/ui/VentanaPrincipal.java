@@ -80,15 +80,15 @@ public class VentanaPrincipal extends JFrame{
         JMenu catalogos = new JMenu("Catálogos");
         catalogos.setMnemonic(KeyEvent.VK_C);
 
-        JMenuItem estados = new JMenuItem("Estados");
-        estados.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
-        estados.addActionListener(e -> mostrarEstados());
+        JMenuItem registro = new JMenuItem("Registro de Estados");
+        registro.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
+        registro.addActionListener(e -> mostrarEstados());
 
-        JMenuItem consulta = new JMenuItem("Consulta");
+        JMenuItem consulta = new JMenuItem("Consulta de Estados");
         consulta.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK));
         consulta.addActionListener(e -> mostrarConsulta());
 
-        catalogos.add(estados);
+        catalogos.add(registro);
         catalogos.add(consulta);
 
         barra.add(archivo);
