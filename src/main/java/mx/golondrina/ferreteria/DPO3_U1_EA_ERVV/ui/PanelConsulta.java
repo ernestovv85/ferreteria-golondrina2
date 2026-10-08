@@ -21,10 +21,13 @@ import javax.swing.table.DefaultTableModel;
 
 import mx.golondrina.ferreteria.DPO3_U1_EA_ERVV.model.Estado;
 import mx.golondrina.ferreteria.DPO3_U1_EA_ERVV.service.EstadoService;
+import mx.golondrina.ferreteria.DPO3_U1_EA_ERVV.service.ValidacionException;
 
 public class PanelConsulta extends JPanel {
 
     private static final long serialVersionUID = 1L;
+
+    private static final int COL_ELIMINAR = 3;
 
     private final transient EstadoService service;
     private final transient Runnable alRegresar;
@@ -35,12 +38,13 @@ public class PanelConsulta extends JPanel {
     private final JLabel lblTotal = new JLabel();
 
     private final DefaultTableModel modeloTabla =
-            new DefaultTableModel(new Object[] {"Clave", "Nombre", "Capital"}, 0) {
+            new DefaultTableModel(new Object[] {"Clave", "Nombre", "Capital", "Eliminar"}, 0) {
                 private static final long serialVersionUID = 1L;
 
+                /** Solo la columna de botones es "editable", para que reciba el clic. */
                 @Override
                 public boolean isCellEditable(int fila, int columna) {
-                    return false;
+                    return columna == COL_ELIMINAR;
                 }
             };
 
@@ -73,6 +77,7 @@ public class PanelConsulta extends JPanel {
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabla.getTableHeader().setReorderingAllowed(false);
         tabla.getColumnModel().getColumn(0).setMaxWidth(80);
+        new ColumnaBoton(tabla, COL_ELIMINAR, "Eliminar", this::eliminar);
 
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(BorderFactory.createTitledBorder(
@@ -110,7 +115,7 @@ public class PanelConsulta extends JPanel {
         try {
             registros.addAll(service.listar());
             for (Estado estado : registros) {
-                modeloTabla.addRow(new Object[] {estado.clave(), estado.nombre(), estado.capital()});
+                modeloTabla.addRow(new Object[] {estado.clave(), estado.nombre(), estado.capital(), "Eliminar"});
             }
         } catch (IOException | IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(
@@ -119,13 +124,49 @@ public class PanelConsulta extends JPanel {
                     "Error de archivo",
                     JOptionPane.WARNING_MESSAGE);
         }
-        actualizarTotal();
+        actualizarTotal("");
     }
 
-    private void actualizarTotal() {
+    private void eliminar(int fila) {
+        Estado estado = registros.get(fila);
+
+        Object[] opciones = {"Confirmar", "Cancelar"};
+        int respuesta = JOptionPane.showOptionDialog(
+                this,
+                "¿Deseas eliminar el siguiente estado?\n\n" + estado.descripcion(),
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                opciones,
+                opciones[1]); // Cancelar como opción predeterminada
+
+        // Cancelar, o cerrar la ventana con la X: el registro se conserva sin cambios
+        if (respuesta != 0) {
+            return;
+        }
+
+        try {
+            service.eliminar(estado.clave());
+            cargarDatos();
+            actualizarTotal("Se eliminó " + estado.nombre() + " (" + estado.clave() + ").");
+        } catch (ValidacionException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            cargarDatos();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo actualizar el archivo:\n" + ex.getMessage(),
+                    "Error de archivo",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void actualizarTotal(String aviso) {
         int total = registros.size();
-        lblTotal.setText(total == 0
+        String texto = total == 0
                 ? "No hay estados registrados. Usa Catálogos > Estados para agregar uno."
-                : total + (total == 1 ? " estado registrado" : " estados registrados"));
+                : total + (total == 1 ? " estado registrado" : " estados registrados");
+        lblTotal.setText(aviso.isEmpty() ? texto : aviso + "   ·   " + texto);
     }
 }

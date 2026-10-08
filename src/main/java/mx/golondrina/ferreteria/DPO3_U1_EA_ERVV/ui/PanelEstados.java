@@ -191,7 +191,7 @@ public class PanelEstados extends JPanel {
         }
     }
 
-    private void cargarTabla() {
+    public void cargarTabla() {
         modeloTabla.setRowCount(0);
         try {
             List<Estado> estados = service.listar();

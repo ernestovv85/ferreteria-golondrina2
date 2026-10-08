@@ -34,6 +34,7 @@ public class VentanaPrincipal extends JFrame{
     private final transient ConfigurableApplicationContext context;
     private final CardLayout tarjetas = new CardLayout();
     private final JPanel contenido = new JPanel(tarjetas);
+    private final PanelEstados panelEstados;
     private final PanelConsulta panelConsulta;
 
     public VentanaPrincipal(ConfigurableApplicationContext context, EstadoService estadoService) {
@@ -41,13 +42,14 @@ public class VentanaPrincipal extends JFrame{
         this.context = context;
 
         Runnable irAInicio = () -> tarjetas.show(contenido, VISTA_INICIO);
+        panelEstados = new PanelEstados(estadoService, irAInicio);
         panelConsulta = new PanelConsulta(estadoService, irAInicio);
 
         setContentPane(contenido);
         setJMenuBar(crearMenu());
 
         contenido.add(new PanelInicio(), VISTA_INICIO);
-        contenido.add(new PanelEstados(estadoService, irAInicio), VISTA_ESTADOS);
+        contenido.add(panelEstados, VISTA_ESTADOS);
         contenido.add(panelConsulta, VISTA_CONSULTA);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -80,7 +82,7 @@ public class VentanaPrincipal extends JFrame{
 
         JMenuItem estados = new JMenuItem("Estados");
         estados.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
-        estados.addActionListener(e -> tarjetas.show(contenido, VISTA_ESTADOS));
+        estados.addActionListener(e -> mostrarEstados());
 
         JMenuItem consulta = new JMenuItem("Consulta");
         consulta.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK));
@@ -92,6 +94,12 @@ public class VentanaPrincipal extends JFrame{
         barra.add(archivo);
         barra.add(catalogos);
         return barra;
+    }
+
+    /** Relee el archivo de texto antes de mostrar el registro, para reflejar los cambios de la Consulta. */
+    private void mostrarEstados() {
+        panelEstados.cargarTabla();
+        tarjetas.show(contenido, VISTA_ESTADOS);
     }
 
     /** Relee el archivo de texto antes de mostrar la consulta, para que siempre esté al día. */
