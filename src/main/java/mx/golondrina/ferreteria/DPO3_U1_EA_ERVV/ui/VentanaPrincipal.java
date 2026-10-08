@@ -29,20 +29,26 @@ public class VentanaPrincipal extends JFrame{
 
     private static final String VISTA_INICIO = "inicio";
     private static final String VISTA_ESTADOS = "estados";
+    private static final String VISTA_CONSULTA = "consulta";
 
     private final transient ConfigurableApplicationContext context;
     private final CardLayout tarjetas = new CardLayout();
     private final JPanel contenido = new JPanel(tarjetas);
+    private final PanelConsulta panelConsulta;
 
     public VentanaPrincipal(ConfigurableApplicationContext context, EstadoService estadoService) {
         super(AppInfo.TITULO_VENTANA);
         this.context = context;
 
+        Runnable irAInicio = () -> tarjetas.show(contenido, VISTA_INICIO);
+        panelConsulta = new PanelConsulta(estadoService, irAInicio);
+
         setContentPane(contenido);
         setJMenuBar(crearMenu());
 
         contenido.add(new PanelInicio(), VISTA_INICIO);
-        contenido.add(new PanelEstados(estadoService, () -> tarjetas.show(contenido, VISTA_INICIO)), VISTA_ESTADOS);
+        contenido.add(new PanelEstados(estadoService, irAInicio), VISTA_ESTADOS);
+        contenido.add(panelConsulta, VISTA_CONSULTA);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -76,11 +82,22 @@ public class VentanaPrincipal extends JFrame{
         estados.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
         estados.addActionListener(e -> tarjetas.show(contenido, VISTA_ESTADOS));
 
+        JMenuItem consulta = new JMenuItem("Consulta");
+        consulta.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK));
+        consulta.addActionListener(e -> mostrarConsulta());
+
         catalogos.add(estados);
+        catalogos.add(consulta);
 
         barra.add(archivo);
         barra.add(catalogos);
         return barra;
+    }
+
+    /** Relee el archivo de texto antes de mostrar la consulta, para que siempre esté al día. */
+    private void mostrarConsulta() {
+        panelConsulta.cargarDatos();
+        tarjetas.show(contenido, VISTA_CONSULTA);
     }
 
     private void salir() {

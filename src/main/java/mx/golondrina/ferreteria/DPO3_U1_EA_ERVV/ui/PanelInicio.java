@@ -51,7 +51,7 @@ public class PanelInicio extends JPanel {
         pie.setBackground(Tema.PRIMARIO_OSCURO);
         pie.setBorder(BorderFactory.createEmptyBorder(8, 24, 8, 24));
 
-        JLabel instruccion = new JLabel("Selecciona Catálogos > Estados para comenzar");
+        JLabel instruccion = new JLabel("Selecciona Catálogos > Estados para registrar o Catálogos > Consulta para administrar");
         instruccion.setForeground(Color.WHITE);
 
         JLabel alumno = new JLabel(AppInfo.ALUMNO);
