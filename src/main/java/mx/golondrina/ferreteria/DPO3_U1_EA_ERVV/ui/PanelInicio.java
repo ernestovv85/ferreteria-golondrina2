@@ -37,7 +37,7 @@ public class PanelInicio extends JPanel {
         empresa.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
         empresa.setForeground(Color.WHITE);
 
-        JLabel modulo = new JLabel(AppInfo.MODULO, SwingConstants.CENTER);
+        JLabel modulo = new JLabel(AppInfo.MODULO + " · " + AppInfo.ETAPA, SwingConstants.CENTER);
         modulo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         modulo.setForeground(Tema.ACENTO);
 
