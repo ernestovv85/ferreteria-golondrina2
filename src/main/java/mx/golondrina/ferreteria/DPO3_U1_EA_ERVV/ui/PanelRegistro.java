@@ -31,7 +31,7 @@ import mx.golondrina.ferreteria.DPO3_U1_EA_ERVV.service.ValidacionException;
  * Formulario del Catálogo de Estados: captura, guarda en archivo de texto
  * y muestra los estados registrados.
  */
-public class PanelEstados extends JPanel {
+public class PanelRegistro extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,7 +52,7 @@ public class PanelEstados extends JPanel {
                 }
             };
 
-    public PanelEstados(EstadoService service, Runnable alRegresar) {
+    public PanelRegistro(EstadoService service, Runnable alRegresar) {
         this.service = service;
         this.alRegresar = alRegresar;
 

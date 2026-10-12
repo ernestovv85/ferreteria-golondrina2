@@ -34,7 +34,7 @@ public class VentanaPrincipal extends JFrame{
     private final transient ConfigurableApplicationContext context;
     private final CardLayout tarjetas = new CardLayout();
     private final JPanel contenido = new JPanel(tarjetas);
-    private final PanelEstados panelEstados;
+    private final PanelRegistro panelEstados;
     private final PanelConsulta panelConsulta;
 
     public VentanaPrincipal(ConfigurableApplicationContext context, EstadoService estadoService) {
@@ -42,7 +42,7 @@ public class VentanaPrincipal extends JFrame{
         this.context = context;
 
         Runnable irAInicio = () -> tarjetas.show(contenido, VISTA_INICIO);
-        panelEstados = new PanelEstados(estadoService, irAInicio);
+        panelEstados = new PanelRegistro(estadoService, irAInicio);
         panelConsulta = new PanelConsulta(estadoService, irAInicio);
 
         setContentPane(contenido);
@@ -78,14 +78,14 @@ public class VentanaPrincipal extends JFrame{
         archivo.add(salir);
 
         JMenu catalogos = new JMenu("Catálogos");
-        catalogos.setMnemonic(KeyEvent.VK_C);
+        catalogos.setMnemonic(KeyEvent.VK_K);
 
         JMenuItem registro = new JMenuItem("Registro de Estados");
-        registro.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
+        registro.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
         registro.addActionListener(e -> mostrarEstados());
 
         JMenuItem consulta = new JMenuItem("Consulta de Estados");
-        consulta.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK));
+        consulta.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         consulta.addActionListener(e -> mostrarConsulta());
 
         catalogos.add(registro);
